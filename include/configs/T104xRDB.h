@@ -258,9 +258,10 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
-#define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
+#define CONFIG_CHIP_SELECTS_PER_CTRL	(1 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
 #define CONFIG_DDR_SPD
+#define CONFIG_SYS_DDR_RAW_TIMING
 
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS	0x51
@@ -719,7 +720,12 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 
 #ifdef CONFIG_FMAN_ENET
 #if defined(CONFIG_TARGET_T1040RDB) || defined(CONFIG_TARGET_T1042RDB)
-#define CONFIG_SYS_SGMII1_PHY_ADDR             0x03
+#define CONFIG_SYS_SGMII1_PHY_ADDR              0x01
+#define CONFIG_SYS_SGMII2_PHY_ADDR              0x02
+#define CONFIG_SYS_SGMII3_PHY_ADDR              0x00
+#define CONFIG_SYS_SGMII4_PHY_ADDR              0x03
+#define CONFIG_SYS_SGMII5_PHY_ADDR              0x04
+
 #elif defined(CONFIG_TARGET_T1040D4RDB)
 #define CONFIG_SYS_SGMII1_PHY_ADDR             0x01
 #elif defined(CONFIG_TARGET_T1042D4RDB)
@@ -749,7 +755,7 @@ $(SRCTREE)/board/freescale/t104xrdb/t1042d4_sd_rcw.cfg
 #endif
 
 #define CONFIG_MII		/* MII PHY management */
-#define CONFIG_ETHPRIME		"FM1@DTSEC4"
+#define CONFIG_ETHPRIME		"FM1@DTSEC3"
 #endif
 
 /*

@@ -54,12 +54,17 @@ int board_eth_init(bd_t *bis)
 #endif
 #ifdef CONFIG_TARGET_T1042RDB
 		case PHY_INTERFACE_MODE_SGMII:
-			/* T1042RDB doesn't supports SGMII on DTSEC1 & DTSEC2 */
-			if ((FM1_DTSEC1 == i) || (FM1_DTSEC2 == i))
-				fm_info_set_phy_address(i, 0);
-			/* T1042RDB only supports SGMII on DTSEC3 */
-			fm_info_set_phy_address(FM1_DTSEC3,
-						CONFIG_SYS_SGMII1_PHY_ADDR);
+			if (FM1_DTSEC1 == i)
+				phy_addr = CONFIG_SYS_SGMII1_PHY_ADDR;
+			if (FM1_DTSEC2 == i)
+				phy_addr = CONFIG_SYS_SGMII2_PHY_ADDR;
+			if (FM1_DTSEC3 == i)
+				phy_addr = CONFIG_SYS_SGMII3_PHY_ADDR;
+			if (FM1_DTSEC4 == i)
+				phy_addr = CONFIG_SYS_SGMII4_PHY_ADDR;
+			if (FM1_DTSEC5 == i)
+				phy_addr = CONFIG_SYS_SGMII5_PHY_ADDR;
+			fm_info_set_phy_address(i, phy_addr);
 			break;
 #endif
 #ifdef CONFIG_TARGET_T1042D4RDB
