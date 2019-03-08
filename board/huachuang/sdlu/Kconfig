@@ -1,0 +1,15 @@
+if TARGET_SDLU
+config MPC8247
+	bool
+	default y
+
+config SYS_BOARD
+	default "sdlu"
+
+config SYS_VENDOR
+	default "huachuang"
+
+config SYS_CONFIG_NAME
+	default "sdlu"
+
+endif
