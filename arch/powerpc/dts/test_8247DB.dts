@@ -1,0 +1,27 @@
+/dts-v1/;
+
+/ {
+    model = "MPC8272ADS";
+    compatible = "fsl,mpc8272ads";
+    #address-cells = <0x00000001>;
+    #size-cells = <0x00000001>;
+
+    flower{
+        compatible = "flower-test";
+        reg = <0x1234 0x2>;
+        color = "red";     
+    };
+
+    cloth{
+        compatible = "cloth-test";
+        #address-cells = <0x00000001>;
+        #size-cells = <0x00000001>;
+        color = "yellow";
+        label = <0x023456 0x56>;
+
+        hat{
+            compatible = "hat-test";
+            reg = <0x9879 0x5>;
+        };
+    };
+};

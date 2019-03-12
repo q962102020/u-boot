@@ -44,31 +44,8 @@
 #   define CONFIG_SYS_LOWBOOT		1
 #endif
 
-/* ADS flavours */
-//#define CONFIG_SYS_8260ADS		1	/* MPC8260ADS */
-//#define CONFIG_SYS_8266ADS		2	/* MPC8266ADS */
-//#define CONFIG_SYS_PQ2FADS		3	/* PQ2FADS-ZU or PQ2FADS-VR */
-//#define CONFIG_SYS_8272ADS		4	/* MPC8272ADS */
-
-//#ifndef CONFIG_ADSTYPE
-//#define CONFIG_ADSTYPE		CONFIG_SYS_8272ADS
-//#endif /* CONFIG_ADSTYPE */
-
-//#if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
-//#define CONFIG_MPC8272		1
-//#elif CONFIG_ADSTYPE == CONFIG_SYS_PQ2FADS
-/*
- * Actually MPC8275, but the code is littered with ifdefs that
- * apply to both, or which use this ifdef to assume board-specific
- * details. :-(
- */
-//#define CONFIG_MPC8272		1
-//#else
-//#define CONFIG_MPC8260		1
-//#endif /* CONFIG_ADSTYPE == CONFIG_SYS_8272ADS */
-
 //#define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
-#define CONFIG_RESET_PHY_R	1	/* Call reset_phy()		*/
+//#define CONFIG_RESET_PHY_R	1	/* Call reset_phy()		*/
 
 /* allow serial and ethaddr to be overwritten */
 #define CONFIG_ENV_OVERWRITE
@@ -99,20 +76,29 @@
  * defined elsewhere (as for the console), or CONFIG_CMD_NET must be unset.
  */
 
-#define CONFIG_ETHER_ON_SCC	
+#if defined(CONFIG_TARGET_MPC8247DB)
+#define CONFIG_ETHER_ON_SCC
+#elif defined(CONFIG_TARGET_SDLU)
+#define CONFIG_ETHER_ON_FCC
+#endif
+
+
+#ifdef CONFIG_ETHER_ON_SCC
 #define CONFIG_ETHER_INDEX	1
 #define CONFIG_SYS_CMXSCR_VALUE 0x37000000
-
+#endif
 
 
 #ifdef CONFIG_ETHER_ON_FCC
 
-#define CONFIG_ETHER_INDEX	2	/* which SCC/FCC channel for ethernet */
+#define CONFIG_ETHER_INDEX	1	/* which SCC/FCC channel for ethernet */
 
 #if   CONFIG_ETHER_INDEX == 1
+#define CONFIG_ETHER_ON_FCC1 	1
 
 # define CONFIG_SYS_PHY_ADDR		0
-# define CONFIG_SYS_CMXFCR_VALUE1	(CMXFCR_RF1CS_CLK11 | CMXFCR_TF1CS_CLK10)
+//# define CONFIG_SYS_CMXFCR_VALUE1	(CMXFCR_RF1CS_CLK11 | CMXFCR_TF1CS_CLK10)
+# define CONFIG_SYS_CMXFCR_VALUE1	(CMXFCR_RF1CS_CLK10 | CMXFCR_TF1CS_CLK9)
 # define CONFIG_SYS_CMXFCR_MASK1	(CMXFCR_FC1 | CMXFCR_RF1CS_MSK | CMXFCR_TF1CS_MSK)
 
 #elif CONFIG_ETHER_INDEX == 2
@@ -142,13 +128,9 @@
 				(immap_t *) CONFIG_SYS_IMMR, MDIO_PORT )
 #define MDC_DECLARE	MDIO_DECLARE
 
-#if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
+
 #define CONFIG_SYS_MDIO_PIN	0x00002000	/* PC18 */
 #define CONFIG_SYS_MDC_PIN	0x00001000	/* PC19 */
-#else
-#define CONFIG_SYS_MDIO_PIN	0x00400000	/* PC9	*/
-#define CONFIG_SYS_MDC_PIN	0x00200000	/* PC10 */
-#endif /* CONFIG_ADSTYPE == CONFIG_SYS_8272ADS */
 
 #define MDIO_ACTIVE	(iop->pdir |=  CONFIG_SYS_MDIO_PIN)
 #define MDIO_TRISTATE	(iop->pdir &= ~CONFIG_SYS_MDIO_PIN)
@@ -166,13 +148,11 @@
 
 /*PCI*/
 #if 0
-#if CONFIG_ADSTYPE >= CONFIG_SYS_PQ2FADS
-//#define CONFIG_PCI
+#define CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCI_PNP
 #define CONFIG_PCI_BOOTDELAY 0
 #define CONFIG_PCI_SCAN_SHOW
-#endif
 #endif
 
 #ifndef CONFIG_8260_CLKIN
@@ -190,13 +170,6 @@
 #define CONFIG_BOOTCOMMAND	"bootm fff80000"	/* autoboot command */
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock2"
 
-#if defined(CONFIG_CMD_KGDB)
-#undef	CONFIG_KGDB_ON_SMC		/* define if kgdb on SMC */
-#define CONFIG_KGDB_ON_SCC		/* define if kgdb on SCC */
-#undef	CONFIG_KGDB_NONE		/* define if kgdb on something else */
-#define CONFIG_KGDB_INDEX	2	/* which serial channel for kgdb */
-#define CONFIG_KGDB_BAUDRATE	115200	/* speed to run kgdb serial port at */
-#endif
 
 #define CONFIG_BZIP2	/* include support for bzip2 compressed images */
 #undef	CONFIG_WATCHDOG /* disable platform specific watchdog */
@@ -204,11 +177,8 @@
 /*
  * Miscellaneous configurable options
  */
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size  */
-#else
 #define CONFIG_SYS_CBSIZE	256			/* Console I/O Buffer Size  */
-#endif
+
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16			/* max number of command args	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
@@ -220,10 +190,11 @@
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
-
 #define CONFIG_SYS_FLASH_BASE		0xFFE00000
-#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of memory banks	*/
+#define CONFIG_SYS_FLASH_BASE2		0xC0000000
+#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max num of memory banks	*/
 #define CONFIG_SYS_MAX_FLASH_SECT	1024	/* max num of sects on one chip */
+#define CONFIG_SYS_FLASH_BANKS_LIST { CONFIG_SYS_FLASH_BASE,CONFIG_SYS_FLASH_BASE2 }
 
 
 /*
@@ -246,13 +217,6 @@
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 //#define CONFIG_SYS_LSDRAM_BASE		0xFD000000
 
-#define RS232EN_1		0x02000002
-#define RS232EN_2		0x01000001
-#define FETHIEN1		0x08000008
-#define FETH1_RST		0x04000004
-#define FETHIEN2		0x10000000
-#define FETH2_RST		0x08000000
-#define BCSR_PCI_MODE		0x01000000
 
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
 #define CONFIG_SYS_INIT_RAM_SIZE	0x2000	/* Size of used area in DPRAM	*/
@@ -283,6 +247,10 @@
 #define CONFIG_SYS_HRCW_SLAVE6 0
 #define CONFIG_SYS_HRCW_SLAVE7 0
 
+#undef CONFIG_SYS_HRCW_MASTER
+#define CONFIG_SYS_HRCW_MASTER 0x0884025A
+
+
 #define CONFIG_SYS_MONITOR_BASE    CONFIG_SYS_TEXT_BASE
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
@@ -301,22 +269,14 @@
 #ifndef CONFIG_SYS_RAMBOOT
 #  define CONFIG_ENV_SIZE	0x10000
 #  define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SIZE)
-#else
-//#  define CONFIG_ENV_IS_IN_NVRAM	1
-//#  define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
-//#  define CONFIG_ENV_SIZE		0x200
-#define CONFIG_ENV_IS_NOWHERE
+#else /*no where*/
 #define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_IPADDR 192.168.1.68
-#define CONFIG_ETHADDR 00:11:22:33:44:55
+#define CONFIG_IPADDR	192.168.1.68
 #endif /* CONFIG_SYS_RAMBOOT */
 
 
-
 #define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC8260 CPU */
-#if defined(CONFIG_CMD_KGDB)
-#  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value */
-#endif
+
 
 #define CONFIG_SYS_HID0_INIT		0
 #define CONFIG_SYS_HID0_FINAL		(HID0_ICE | HID0_IFEM | HID0_ABE )
@@ -328,14 +288,13 @@
 #define CONFIG_SYS_SIUMCR		0x00640000
 #define CONFIG_SYS_SCCR		SCCR_DFBRG01
 #define CONFIG_SYS_BR0_PRELIM		(CONFIG_SYS_FLASH_BASE | 0x00001801)
-//#define CONFIG_SYS_OR0_PRELIM		0xFe000c74
-#define CONFIG_SYS_OR0_PRELIM		0xFE000EF4
+#define CONFIG_SYS_OR0_PRELIM		0xFFE00EF4
 
-//#define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_FLASH_BASE2 | 0x00001001)
-//#define CONFIG_SYS_OR1_PRELIM		0xFC000C54	/*32MB*/
+#define CONFIG_SYS_BR1_PRELIM		(CONFIG_SYS_FLASH_BASE2 | 0x00001001)
+#define CONFIG_SYS_OR1_PRELIM		0xFC000C54	/*32MB*/
 
 #define	CONFIG_SYS_BR2_PRELIM		(CONFIG_SYS_SDRAM_BASE | 0x00000041)
-#define CONFIG_SYS_OR2_PRELIM		0xf8002b00
+#define CONFIG_SYS_OR2_PRELIM		CONFIG_SYS_OR_TIMING_SDRAM
 
 /*We need to configure chip select to use CPLD PCI IC on MPC8272ADS*/
 #if 0
@@ -421,7 +380,6 @@
 #define CONFIG_SYS_PCIMSK1_MASK		~(CONFIG_SYS_PCI_MSTR_MEM_SIZE + CONFIG_SYS_PCI_MSTR_MEMIO_SIZE - 1U)
 
 
-
 #define CONFIG_HAS_ETH0
 
 #define CONFIG_HAS_ETH1
@@ -447,7 +405,20 @@
 		"root=$rootdev rw console=$console,$baudrate $othbootargs\0" \
 	"setipargs=setenv bootargs nfsroot=$serverip:$rootpath "	 \
 		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname:$netdev:off " \
-		"root=$rootdev rw console=$console,$baudrate $othbootargs\0"
+		"root=$rootdev rw console=$console,$baudrate $othbootargs\0"	\
+		CONFIG_EXTRA_RAM_ENV_SETTINGS
+		
+#ifdef CONFIG_SYS_RAMBOOT
+#define CONFIG_EXTRA_RAM_ENV_SETTINGS			\
+		"bootfile=u-boot\0" 					\
+		"serverip=192.168.1.167\0"				\
+		"ping=ping $serverip\0" 				\
+		"boot=go 0xfff00100\0"					\
+		"ethaddr=00:11:22:33:44:55\0"
+#else
+#define CONFIG_EXTRA_RAM_ENV_SETTINGS
+#endif
+
 
 #define CONFIG_NFSBOOTCOMMAND						\
 	"setenv rootdev /dev/nfs;"					\

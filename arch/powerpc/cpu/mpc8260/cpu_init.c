@@ -15,9 +15,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #if defined(CONFIG_BOARD_GET_CPU_CLK_F)
 extern unsigned long board_get_cpu_clk_f (void);
 #endif
-static void config_8260_ioports1 (volatile immap_t * immr)
+
+static void config_8260_ioports_tmp (volatile immap_t * immr)
 {
-	immr->im_ioport.iop_podra=0x00000000;
+#if defined(CONFIG_TARGET_MPC8247DB)
+	immr->im_ioport.iop_podra=0;
 	immr->im_ioport.iop_pdata=0x00ffffff;
 	immr->im_ioport.iop_pdira=0x00100000;
 	immr->im_ioport.iop_ppara=0;
@@ -41,6 +43,32 @@ static void config_8260_ioports1 (volatile immap_t * immr)
 	immr->im_ioport.iop_ppard=0x00030007;
 	immr->im_ioport.iop_psord=0x00030002;
 
+#elif defined(CONFIG_TARGET_SDLU)
+	immr->im_ioport.iop_podra=0;
+	immr->im_ioport.iop_pdata=0;
+	immr->im_ioport.iop_pdira=0x00003c4c;
+	immr->im_ioport.iop_ppara=0x0003fc3f;
+	immr->im_ioport.iop_psora=0x0000003f;
+
+	
+	immr->im_ioport.iop_podrb=0;
+	immr->im_ioport.iop_pdatb=0x00003fff;
+	immr->im_ioport.iop_pdirb=0;
+	immr->im_ioport.iop_pparb=0;
+	immr->im_ioport.iop_psorb=0;
+
+	immr->im_ioport.iop_podrc=0;
+	immr->im_ioport.iop_pdatc=0xcbfffefc;
+	immr->im_ioport.iop_pdirc=0x04000000;
+	immr->im_ioport.iop_pparc=0x0c000300;
+	immr->im_ioport.iop_psorc=0;
+
+	immr->im_ioport.iop_podrd=0x00030000;
+	immr->im_ioport.iop_pdatd=0x0103fb45;
+	immr->im_ioport.iop_pdird=0;
+	immr->im_ioport.iop_ppard=0x00030000;
+	immr->im_ioport.iop_psord=0x00030000;
+#endif
 }
 
 static void config_8260_ioports (volatile immap_t * immr)
@@ -158,8 +186,9 @@ void cpu_init_f (volatile immap_t * immr)
 	immr->im_siu_conf.sc_siumcr = CONFIG_SYS_SIUMCR;
 #endif
 
-	config_8260_ioports1 (immr);
-
+	config_8260_ioports_tmp (immr);
+	//config_8260_ioports (immr);
+	
 	/* initialize time counter status and control register (4-40) */
 	immr->im_sit.sit_tmcntsc = CONFIG_SYS_TMCNTSC;
 

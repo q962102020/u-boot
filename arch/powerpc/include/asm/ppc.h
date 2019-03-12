@@ -15,6 +15,11 @@
 #if defined(CONFIG_MPC8xx)
 #include <asm/immap_8xx.h>
 #endif
+#ifdef CONFIG_MPC8260
+#define CONFIG_MPC8272_FAMILY  1
+#include <mpc8260.h>
+#include <asm/immap_8260.h>
+#endif
 #ifdef CONFIG_MPC86xx
 #include <mpc86xx.h>
 #include <asm/immap_86xx.h>

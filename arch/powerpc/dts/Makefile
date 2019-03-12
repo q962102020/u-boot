@@ -3,6 +3,7 @@
 dtb-$(CONFIG_TARGET_T2080QDS) += t2080qds.dtb
 dtb-$(CONFIG_MCR3000) += mcr3000.dtb
 
+dtb-$(CONFIG_TARGET_MPC8247DB) += test_8247DB.dtb
 targets += $(dtb-y)
 
 # Add any required device tree compiler flags here

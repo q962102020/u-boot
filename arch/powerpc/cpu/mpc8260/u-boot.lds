@@ -6,7 +6,7 @@
  */
 
 OUTPUT_ARCH(powerpc)
-
+ENTRY(_start)
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
@@ -54,12 +54,15 @@ SECTIONS
   __ex_table : { *(__ex_table) }
   __stop___ex_table = .;
 
+  PROVIDE (_end = .);
+
   . = ALIGN(4096);
   __init_begin = .;
   .text.init : { *(.text.init) }
   .data.init : { *(.data.init) }
   . = ALIGN(4096);
   __init_end = .;
+
 
   __bss_start = .;
   .bss (NOLOAD)       :

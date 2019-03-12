@@ -9,7 +9,10 @@ choice
 	optional
 
 config TARGET_SDLU
-	bool "Support sdlu"
+	bool "sdlu"
+
+config TARGET_MPC8247DB
+	bool "mpc8247db"
 
 endchoice
 

@@ -55,6 +55,7 @@ typedef void (interrupt_handler_t)(void *);
 #define	TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
 #endif
 
+
 /* startup functions, used in:
  * common/board_f.c
  * common/init/board_init.c

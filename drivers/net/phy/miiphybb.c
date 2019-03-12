@@ -236,7 +236,7 @@ int bb_miiphy_read(struct mii_dev *miidev, int addr, int devad, int reg)
 	int j; /* counter */
 	struct bb_miiphy_bus *bus;
 
-	bus = bb_miiphy_getbus(miidev->name);
+	bus = bb_miiphy_getbus(miidev?miidev->name:NULL);
 	if (bus == NULL) {
 		return -1;
 	}
@@ -307,7 +307,7 @@ int bb_miiphy_write(struct mii_dev *miidev, int addr, int devad, int reg,
 	struct bb_miiphy_bus *bus;
 	int j;			/* counter */
 
-	bus = bb_miiphy_getbus(miidev->name);
+	bus = bb_miiphy_getbus(miidev?miidev->name:NULL);
 	if (bus == NULL) {
 		/* Bus not found! */
 		return -1;

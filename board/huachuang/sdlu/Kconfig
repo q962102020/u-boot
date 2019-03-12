@@ -1,4 +1,4 @@
-if TARGET_SDLU
+if TARGET_SDLU || TARGET_MPC8247DB
 config MPC8247
 	bool
 	default y

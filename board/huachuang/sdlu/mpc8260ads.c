@@ -43,10 +43,21 @@ DECLARE_GLOBAL_DATA_PTR;
  * if conf is 1, then that port pin will be configured at boot time
  * according to the five values podr/pdir/ppar/psor/pdat for that entry
  */
+#define CONFIG_SYS_FCC1 0
+#define CONFIG_SYS_FCC2 0
+#define CONFIG_SYS_FCC3 0
 
-#define CONFIG_SYS_FCC1 (CONFIG_ETHER_INDEX == 1)
-#define CONFIG_SYS_FCC2 (CONFIG_ETHER_INDEX == 2)
-#define CONFIG_SYS_FCC3 (CONFIG_ETHER_INDEX == 3)
+#ifdef CONFIG_ETHER_ON_FCC1
+#define CONFIG_SYS_FCC1 1
+#endif
+
+#ifdef CONFIG_ETHER_ON_FCC2
+#define CONFIG_SYS_FCC2 1
+#endif
+
+#ifdef CONFIG_ETHER_ON_FCC3
+#define CONFIG_SYS_FCC3 1
+#endif
 
 const iop_conf_t iop_conf_tab[4][32] = {
 
@@ -132,33 +143,21 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PC26 */ { 0,          0,   0,   0,   0,   0 }, /* PC26 */
 	/* PC25 */ { 0,          0,   0,   0,   0,   0 }, /* PC25 */
 	/* PC24 */ { 0,          0,   0,   0,   0,   0 }, /* PC24 */
-	/* PC23 */ { 0,          0,   0,   0,   0,   0 }, /* PC23 */
+	/* PC23 */ { CONFIG_SYS_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII Rx Clock (CLK9) */
 	/* PC22 */ { CONFIG_SYS_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII Tx Clock (CLK10) */
-	/* PC21 */ { CONFIG_SYS_FCC1,   1,   0,   0,   0,   0 }, /* FCC1 MII Rx Clock (CLK11) */
+	/* PC21 */ { 0,   0,   0,   0,   0,   0 }, /* PC21 */
 	/* PC20 */ { 0,          0,   0,   0,   0,   0 }, /* PC20 */
-#if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
 	/* PC19 */ { 1,          0,   0,   1,   0,   0 }, /* FETHMDC  */
 	/* PC18 */ { 1,          0,   0,   0,   0,   0 }, /* FETHMDIO */
 	/* PC17 */ { CONFIG_SYS_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII Rx Clock (CLK15) */
 	/* PC16 */ { CONFIG_SYS_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII Tx Clock (CLK16) */
-#else
-	/* PC19 */ { CONFIG_SYS_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII Rx Clock (CLK13) */
-	/* PC18 */ { CONFIG_SYS_FCC2,   1,   0,   0,   0,   0 }, /* FCC2 MII Tx Clock (CLK14) */
-	/* PC17 */ { 0,          0,   0,   0,   0,   0 }, /* PC17 */
-	/* PC16 */ { 0,          0,   0,   0,   0,   0 }, /* PC16 */
-#endif /* CONFIG_ADSTYPE == CONFIG_SYS_8272ADS */
 	/* PC15 */ { 0,          0,   0,   0,   0,   0 }, /* PC15 */
 	/* PC14 */ { 0,          0,   0,   0,   0,   0 }, /* PC14 */
 	/* PC13 */ { 0,          0,   0,   0,   0,   0 }, /* PC13 */
 	/* PC12 */ { 0,          0,   0,   0,   0,   0 }, /* PC12 */
 	/* PC11 */ { 0,          0,   0,   0,   0,   0 }, /* PC11 */
-#if CONFIG_ADSTYPE == CONFIG_SYS_8272ADS
 	/* PC10 */ { 0,          0,   0,   0,   0,   0 }, /* PC10 */
 	/* PC9  */ { 0,          0,   0,   0,   0,   0 }, /* PC9  */
-#else
-	/* PC10 */ { 1,          0,   0,   1,   0,   0 }, /* FETHMDC  */
-	/* PC9  */ { 1,          0,   0,   0,   0,   0 }, /* FETHMDIO */
-#endif /* CONFIG_ADSTYPE == CONFIG_SYS_8272ADS */
 	/* PC8  */ { 0,          0,   0,   0,   0,   0 }, /* PC8 */
 	/* PC7  */ { 0,          0,   0,   0,   0,   0 }, /* PC7 */
 	/* PC6  */ { 0,          0,   0,   0,   0,   0 }, /* PC6 */
@@ -169,7 +168,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PC1  */ { 0,          0,   0,   0,   0,   0 }, /* PC1 */
 	/* PC0  */ { 0,          0,   0,   0,   0,   0 }, /* PC0 */
     },
-
+    
     /* Port D */
     {   /*	      conf ppar psor pdir podr pdat */
 	/* PD31 */ {   1,   1,   0,   0,   0,   0   }, /* SCC1 UART RxD */
@@ -206,10 +205,11 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PD0  */ {   0,   0,   0,   0,   0,   0   }  /* pin doesn't exist */
     }
 };
-
+	
+#if defined(CONFIG_RESET_PHY_R)
 void reset_phy (void)
 {
-	
+
 #if 0	
 	//vu_long *bcsr = (vu_long *)CONFIG_SYS_BCSR;
 
@@ -236,15 +236,16 @@ void reset_phy (void)
 	 */
 
 	/* Advertise all capabilities */
-	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR, MII_ADVERTISE, 0x01E1);
+	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR,0, MII_ADVERTISE, 0x01E1);
 
 	/* Do not bypass Rx/Tx (de)scrambler */
-	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR, MII_FCSCOUNTER,  0x0000);
+	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR, 0,MII_FCSCOUNTER,  0x0000);
 
-	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR, MII_BMCR,
+	bb_miiphy_write(NULL, CONFIG_SYS_PHY_ADDR, 0,MII_BMCR,
 			BMCR_ANENABLE | BMCR_ANRESTART);
 #endif /* CONFIG_MII */
 }
+#endif
 
 #ifdef CONFIG_PCI
 typedef struct pci_ic_s {
@@ -254,7 +255,6 @@ typedef struct pci_ic_s {
 #endif
 
 #if 0
-
 int board_early_init_f (void)
 {
 
@@ -298,8 +298,8 @@ int board_early_init_f (void)
 
 int dram_init()
 {
-#ifdef CONFIG_TARGET_SDLU
-	long int msize = 64;
+#if defined(CONFIG_TARGET_SDLU) || defined(CONFIG_TARGET_MPC8247DB)
+	long int msize = 128;
 #else
 # if   CONFIG_ADSTYPE == CONFIG_SYS_PQ2FADS
 	long int msize = 32;
@@ -519,6 +519,8 @@ int checkboard (void)
 {
 #ifdef CONFIG_TARGET_SDLU
 	puts ("Board: SDLU\n");
+#elif defined(CONFIG_TARGET_MPC8247DB)
+	puts ("Board: MPC8247DB\n");
 #else
 # if   CONFIG_ADSTYPE == CONFIG_SYS_8260ADS
 	puts ("Board: Motorola MPC8260ADS\n");
